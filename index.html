@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width initial-scale=1.0">
+    <title>Simulateur d'Ondes Sonores</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Manrope', sans-serif;
+        }
+
+        body {
+            background-color: #ffffff;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        h1 {
+            font-weight: 700;
+            font-size: 2.2rem;
+            letter-spacing: -0.5px;
+            margin-bottom: 5px;
+            color: #222;
+        }
+
+        .subtitle {
+            font-weight: 400;
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .wave-container {
+            flex: 1;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0 0 0 0.03);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #waveCanvas {
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            border-radius: 8px;
+        }
+
+        .controls {
+            width: 300px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0 0 0 0.03);
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+        }
+
+        .control-group h3 {
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            color: #444;
+        }
+
+        .slider-container {
+            margin-bottom: 20px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .slider-label span {
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .value-display {
+            font-weight: 600;
+            color: #2c6bed;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: #e0e4e9;
+            border-radius: 10px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #2c6bed;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            background: #1a5bc5;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            color: #777;
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .controls {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Simulateur d'Ondes Sonores</h1>
+        <p class="subtitle">Visualisation interactive des propriétés des ondes</p>
+    </header>
+
+    <div class="container">
+        <div class="wave-container">
+            <canvas id="waveCanvas"></canvas>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <h3>Paramètres des Ondes</h3>
+                
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Fréquence</span>
+                        <span class="value-display" id="freqValue">2.0 Hz</span>
+                    </div>
+                    <input type="range" id="frequency" min="0.1" max="5" step="0.1" value="2">
+                </div>
+                
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Amplitude</span>
+                        <span class="value-display" id="ampValue">50%</span>
+                    </div>
+                    <input type="range" id="amplitude" min="10" max="100" value="50">
+                </div>
+                
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Longueur d'onde</span>
+                        <span class="value-display" id="waveValue">120px</span>
+                    </div>
+                    <input type="range" id="wavelength" min="50" max="300" value="120">
+                </div>
+                
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Vitesse</span>
+                        <span class="value-display" id="speedValue">Moyenne</span>
+                    </div>
+                    <input type="range" id="speed" min="1" max="5" value="3">
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>Paramètres de Visualisation</h3>
+                
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Résolution</span>
+                        <span class="value-display" id="resValue">Élevée</span>
+                    </div>
+                    <input type="range" id="resolution" min="1" max="3" step="1" value="2">
+                </div>
+                
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Épaisseur</span>
+                        <span class="value-display" id="thickValue">3px</span>
+                    </div>
+                    <input type="range" id="thickness" min="1" max="8" value="3">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Simulation d'ondes sonores en temps réel | Généré par IA</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('waveCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Paramètres initiaux
+            let params = {
+                frequency: 2,
+                amplitude: 50,
+                wavelength: 120,
+                speed: 3,
+                resolution: 2,
+                thickness: 3,
+                phase: 0
+            };
+            
+            // Éléments de contrôle
+            const frequencySlider = document.getElementById('frequency');
+            const amplitudeSlider = document.getElementById('amplitude');
+            const wavelengthSlider = document.getElementById('wavelength');
+            const speedSlider = document.getElementById('speed');
+            const resolutionSlider = document.getElementById('resolution');
+            const thicknessSlider = document.getElementById('thickness');
+            
+            // Affichage des valeurs
+            const freqValue = document.getElementById('freqValue');
+            const ampValue = document.getElementById('ampValue');
+            const waveValue = document.getElementById('waveValue');
+            const speedValue = document.getElementById('speedValue');
+            const resValue = document.getElementById('resValue');
+            const thickValue = document.getElementById('thickValue');
+            
+            // Mise à jour des valeurs affichées
+            function updateDisplay() {
+                freqValue.textContent = params.frequency.toFixed(1) + ' Hz';
+                ampValue.textContent = params.amplitude + '%';
+                waveValue.textContent = params.wavelength + 'px';
+                thickValue.textContent = params.thickness + 'px';
+                
+                // Valeurs qualitatives
+                const speedLabels = ['Très lente', 'Lente', 'Moyenne', 'Rapide', 'Très rapide'];
+                speedValue.textContent = speedLabels[params.speed - 1];
+                
+                const resLabels = ['Basse', 'Moyenne', 'Élevée'];
+                resValue.textContent = resLabels[params.resolution - 1];
+            }
+            
+            // Écouteurs pour les sliders
+            frequencySlider.addEventListener('input', () => {
+                params.frequency = parseFloat(frequencySlider.value);
+                updateDisplay();
+            });
+            
+            amplitudeSlider.addEventListener('input', () => {
+                params.amplitude = parseInt(amplitudeSlider.value);
+                updateDisplay();
+            });
+            
+            wavelengthSlider.addEventListener('input', () => {
+                params.wavelength = parseInt(wavelengthSlider.value);
+                updateDisplay();
+            });
+            
+            speedSlider.addEventListener('input', () => {
+                params.speed = parseInt(speedSlider.value);
+                updateDisplay();
+            });
+            
+            resolutionSlider.addEventListener('input', () => {
+                params.resolution = parseInt(resolutionSlider.value);
+                updateDisplay();
+            });
+            
+            thicknessSlider.addEventListener('input', () => {
+                params.thickness = parseInt(thicknessSlider.value);
+                updateDisplay();
+            });
+            
+            // Ajustement de la taille du canvas
+            function resizeCanvas() {
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+            }
+            
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            
+            // Fonction de dessin de l'onde
+            function drawWave() {
+                const width = canvas.width;
+                const height = canvas.height;
+                const centerY = height / 2;
+                
+                // Effacer le canvas
+                ctx.clearRect(0 0 width height);
+                
+                // Calculer le pas en fonction de la résolution
+                const step = Math.max(1 10 - (params.resolution * 2));
+                
+                // Définir le style de la vague
+                ctx.beginPath();
+                ctx.lineWidth = params.thickness;
+                ctx.strokeStyle = '#2c6bed';
+                ctx.lineJoin = 'round';
+                ctx.lineCap = 'round';
+                
+                // Calculer l'amplitude réelle (pourcentage de la hauteur du canvas)
+                const amplitudePx = (params.amplitude / 100) * (height / 2);
+                
+                // Dessiner la vague
+                for (let x = 0; x <= width; x += step) {
+                    // Équation d'onde : y = A * sin(2π(x/λ - ft) + φ)
+                    const y = centerY + amplitudePx * Math.sin(
+                        (2 * Math.PI * x) / params.wavelength - 
+                        (params.phase * params.frequency * 0.1)
+                    );
+                    
+                    if (x === 0) {
+                        ctx.moveTo(x y);
+                    } else {
+                        ctx.lineTo(x y);
+                    }
+                }
+                
+                ctx.stroke();
+                
+                // Mettre à jour la phase pour l'animation
+                params.phase += params.speed * 0.02;
+                
+                // Prochaine frame
+                requestAnimationFrame(drawWave);
+            }
+            
+            // Initialiser l'affichage et démarrer l'animation
+            updateDisplay();
+            drawWave();
+        });
+    </script>
+</body>
+</html>
